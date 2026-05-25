@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>도트 디지털 몬스터 펫</title>
+    <style>
+        /* 레트로 가상 다마고치 기기 스타일 정의 */
+        body {
+            background-color: #2c3e50;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .tamagotchi-case {
+            background: radial-gradient(circle, #ff5722 60%, #e64a19 100%);
+            width: 360px;
+            padding: 30px 20px;
+            border-radius: 110px / 140px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4), inset 0 -5px 15px rgba(0,0,0,0.3);
+            border: 8px solid #d84315;
+            text-align: center;
+            position: relative;
+        }
+        .lcd-screen {
+            background-color: #a3b899;
+            width: 260px;
+            height: 220px;
+            margin: 0 auto 20px auto;
+            border-radius: 10px;
+            border: 15px solid #333;
+            box-shadow: inset 3px 3px 10px rgba(0,0,0,0.5);
+            position: relative;
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .screen-header {
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #333;
+            padding-bottom: 3px;
+        }
+        .view-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        /* CSS 테두리 격자를 이용한 절제된 도트 스타일 표현 */
+        .monster-sprite {
+            background-color: #222;
+            transition: all 0.3s ease;
+        }
+        .stage-유년기 { width: 32px; height: 32px; border-radius: 50%; box-shadow: 4px 4px 0 #444; }
+        .stage-성장기 { width: 56px; height: 56px; border-radius: 8px; box-shadow: 6px 6px 0 #444; }
+        .stage-완전체 { width: 80px; height: 80px; border-radius: 4px; box-shadow: 8px 8px 0 #444; }
+        
+        .egg-sprite {
+            width: 40px; height: 50px; background-color: #555; border-radius: 50% 50% 40% 40%;
+            animation: wobble 1s infinite alternate;
+        }
+        @keyframes wobble {
+            0% { transform: rotate(-5deg); } 100% { transform: rotate(5deg); }
+        }
+        
+        .status-text { font-size: 12px; font-weight: bold; margin-top: 4px; height: 16px; }
+        
+        /* 다마고치 물리 버튼 인터페이스 */
+        .buttons-row {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            margin-top: 15px;
+        }
+        .btn {
+            width: 50px; height: 50px; background-color: #ffeb3b; border-radius: 50%;
+            border: 3px solid #f57f17; box-shadow: 0 4px 0 #f57f17; cursor: pointer;
+            font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center;
+        }
+        .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #f57f17; }
+        
+        /* 탭 및 외부 확장 메뉴 영역 */
+        .panel {
+            background: rgba(255,255,255,0.95); margin-top: 15px; padding: 12px;
+            border-radius: 10px; font-size: 12px; text-align: left; display: none;
+            max-height: 200px; overflow-y: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .active-panel { display: block; }
+        .flex-space { display: flex; justify-content: space-between; margin-bottom: 5px; }
+        input[type="text"] { width: 70%; padding: 3px; font-size: 11px; }
+        button { cursor: pointer; padding: 3px 8px; font-size: 11px; }
+        .book-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .book-item { padding: 4px; border: 1px solid #ccc; text-align: center; background: #eee; font-size: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="tamagotchi-case">
+    <!-- LCD 화면 영역 -->
+    <div class="lcd-screen">
+        <div class="screen-header">
+            <span id="display-stage">대기 중</span>
+            <span id="display-injury" style="color: #d32f2f;"></span>
+            <span id="display-type">TYPE</span>
+        </div>
+        
+        <div class="view-area" id="view-area">
+            <!-- 알 또는 몬스터 스프라이트가 동적으로 주입됨 -->
+            <div class="egg-sprite" id="egg-element" onclick="hatchEgg()"></div>
+        </div>
+        
+        <div class="status-text" id="status-line">알을 클릭하여 부화시키세요!</div>
+    </div>
+
+    <!-- 하드웨어 버튼 버튼 A, B, C -->
+    <div class="buttons-row">
+        <button class="btn" onclick="pressButton('A')">A</button>
+        <button class="btn" onclick="pressButton('B')">B</button>
+        <button class="btn" onclick="pressButton('C')">C</button>
+    </div>
+    <div style="display:flex; justify-content:space-around; font-size:11px; color:white; margin-top:4px; font-weight:bold;">
+        <span>메뉴(A)</span><span>선택(B)</span><span>취소(C)</span>
+    </div>
+
+    <!-- 기능 확장 패널 시스템 (A버튼으로 순환 제어) -->
+    <!-- 1. 상태 창 -->
+    <div class="panel" id="panel-status">
+        <h3>📊 몬스터 스탯 정보</h3>
+        <div class="flex-space"><span>이름:</span> <b id="stat-name">-</b></div>
+        <div class="flex-space"><span>고유 코드:</span> <span id="stat-code" style="font-size:10px; color:#666;">-</span></div>
+        <div class="flex-space"><span>💪 힘 (STR):</span> <b id="stat-str">0</b></div>
+        <div class="flex-space"><span>❤️ 체력 (HP):</span> <b id="stat-hp">0</b></div>
+        <div class="flex-space"><span>⚡ 스피드 (SPD):</span> <b id="stat-spd">0</b></div>
+        <div class="flex-space"><span>🧬 상성:</span> <b id="stat-type">-</b></div>
+        <button onclick="healMonster()" style="width:100%; margin-top:8px; background:#4caf50; color:white; border:none; padding:5px;">🩹 부상 치료하기</button>
+    </div>
+
+    <!-- 2. 패스워드 배틀 창 -->
+    <div class="panel" id="panel-battle">
+        <h3>⚔️ 패스워드 배틀</h3>
+        <p style="margin:0 0 8px 0; font-size:11px; color:#666;">성장기 이상부터 대전 코드를 교환해 배틀이 가능합니다.</p>
+        <div style="margin-bottom:8px;">
+            <button onclick="generateBattleCode()" style="background:#2196f3; color:white; border:none;">내 대전 코드 복사</button>
+        </div>
+        <div class="flex-space">
+            <input type="text" id="opponent-code" placeholder="상대방 코드를 입력하세요">
+            <button onclick="startBattle()" style="background:#f44336; color:white; border:none;">전투 시작</button>
+        </div>
+        <div id="battle-log" style="margin-top:8px; border-top:1px solid #ccc; padding-top:5px; font-size:11px; color:#555; max-height:60px; overflow-y:auto;"></div>
+    </div>
+
+    <!-- 3. 도감 창 -->
+    <div class="panel" id="panel-book">
+        <h3>📖 발견된 몬스터 도감</h3>
+        <div class="book-grid" id="book-grid-area"></div>
+    </div>
+</div>
+
+<script>
+    // --- 1. 독창적인 레트로 도트 몬스터 데이터 베이스 (총 60가지 분기 규칙 설계) ---
+    // 저작권 침해 없는 순수 크리에이티브 네이밍 및 가위바위보 속성 설계
+    // 분(Minute) 기준 데이터 인덱스 매핑 매트릭스
+    const MONSTER_DB = {};
+    const types = ["백신", "데이터", "바이러스"]; // 백신(바위) > 데이터(보) > 바이러스(가위) > 백신(바위)
+    
+    // 60종의 독자적 접두사/접미사를 조합한 저작권 프리 몬스터 도감 자동 빌드
+    const prefixes = ["토르", "네오", "제피르", "볼트", "아쿠아", "파이로", "가이아", "미스틱", "루멘", "쉐도우", "시그마", "옴니", "크로노", "하이드로", "에어로"];
+    const cores = ["비트", "플러그", "윙", "클로", "하트", "쉘", "팡", "혼", "테일", "가드", "스파이크", "나이트", "폰", "링", "체인"];
+    
+    for(let i = 0; i < 60; i++) {
+        let name1 = prefixes[i % prefixes.length] + cores[(i + 2) % cores.length] + "몬";
+        let name2 = prefixes[(i + 3) % prefixes.length] + cores[(i + 5) % cores.length] + "몬";
+        let name3 = prefixes[(i + 1) % prefixes.length] + cores[(i + 4) % cores.length] + "몬";
+        
+        MONSTER_DB[i] = {
+            code: "M" + String(i).padStart(2, '0'),
+            유년기: { name: "핀" + (i+1) + "몬", str: 5 + (i%3), hp: 30 + (i%5), spd: 4 + (i%2), type: types[i % 3] },
+            성장기: [
+                { name: name1, str: 15 + (i%5), hp: 80 + (i%10), spd: 12 + (i%4), type: types[(i+1)%3] },
+                { name: name2, str: 18 + (i%4), hp: 70 + (i%15), spd: 15 + (i%3), type: types[(i+2)%3] }
+            ],
+            완전체: [
+                { name: "마스터" + name1, str: 45 + (i%10), hp: 210 + (i%30), spd: 35 + (i%8), type: types[(i+2)%3] },
+                { name: "기가" + name2, str: 52 + (i%8), hp: 190 + (i%40), spd: 42 + (i%6), type: types[i%3] }
+            ]
+        };
+    }
+
+    // --- 2. 실시간 인게임 상태 관리 객체 (State) ---
+    let gameState = {
+        hasEgg: true,
+        isHatched: false,
+        minuteId: 0,       // 태어난 분(0~59)이 개체의 운명을 결정함
+        stage: "알",        // 알 -> 유년기 -> 성장기 -> 완전체
+        branchIndex: 0,    // 진화 시 선택된 조건 분기값 (0 또는 1)
+        name: "디지타마",
+        code: "EGG-00",
+        str: 0, hp: 0, maxHp: 0, spd: 0, type: "NONE",
+        isInjured: false,
+        lastEvolvedTime: null,
+        unlockedMonsters: [] // 도감 해금 목록 저장을 위한 배열
+    };
+
+    // UI 제어용 가상 물리 메뉴 인덱스
+    let currentPanelIdx = -1; 
+    const panels = ["panel-status", "panel-battle", "panel-book"];
+
+    // --- 3. 핵심 시스템 초기화 및 로컬스토리지 연동 ---
+    window.onload = function() {
+        loadGame();
+        renderDOM();
+        updateBookUI();
+        
+        // 5초마다 실시간 배경 진화 타이머 조건 감시 루프 실행
+        setInterval(checkEvolution, 5000);
+    };
+
+    // 데이터 영속성 세이브 로직 (규칙 2)
+    function saveGame() {
+        localStorage.setItem("retro_monster_save", JSON.stringify(gameState));
+    }
+
+    function loadGame() {
+        const saved = localStorage.getItem("retro_monster_save");
+        if(saved) {
+            try {
+                gameState = JSON.parse(saved);
+            } catch(e) {
+                console.error("세이브 파일 파손 복구 리셋");
+            }
+        }
+    }
+
+    // --- 4. 알 부화 및 진화 로직 (규칙 1, 3, 6, 7, 8) ---
+    function hatchEgg() {
+        if (!gameState.hasEgg || gameState.isHatched) return;
+
+        // 현실 시간의 "분" 수집 (규칙 1, 3)
+        const now = new Date();
+        const currentMinute = now.getMinutes(); 
+        
+        gameState.hasEgg = false;
+        gameState.isHatched = true;
+        gameState.minuteId = currentMinute;
+        gameState.stage = "유년기";
+        gameState.lastEvolvedTime = Date.now();
+        
+        // 데이터 대입
+        const baseData = MONSTER_DB[currentMinute].유년기;
+        applyMonsterData(baseData);
+        unlockBook(baseData.name);
+        
+        document.getElementById("view-area").innerHTML = `<div class="monster-sprite stage-유년기" id="monster-element"></div>`;
+        gameState.name = baseData.name;
+        
+        saveGame();
+        renderDOM();
+    }
+
+    function applyMonsterData(data) {
+        gameState.name = data.name;
+        gameState.code = MONSTER_DB[gameState.minuteId].code;
+        gameState.str = data.str;
+        gameState.maxHp = data.hp;
+        gameState.hp = data.hp;
+        gameState.spd = data.spd;
+        gameState.type = data.type;
+    }
+
+    // 실시간 비동기 시간 시뮬레이션 진화 처리 (규칙 7, 8)
+    function checkEvolution() {
+        if (!gameState.isHatched || gameState.stage === "완전체") return;
+
+        const elapsed = Date.now() - gameState.lastEvolvedTime;
+        // 테스트 편의성을 위해 진화 주기 타임아웃을 30초(30000ms)로 밸런싱 설정
+        const EVOLUTION_COOLDOWN = 30000; 
+
+        if (elapsed >= EVOLUTION_COOLDOWN) {
+            // 조건 분기 결정식: 현재 시간 초(Second)가 짝수면 루트0, 홀수면 루트1 (규칙 8 만족)
+            const branch = (new Date().getSeconds() % 2 === 0) ? 0 : 1;
+            gameState.branchIndex = branch;
+
+            if (gameState.stage === "유년기") {
+                gameState.stage = "성장기";
+                const targetData = MONSTER_DB[gameState.minuteId].성장기[branch];
+                applyMonsterData(targetData);
+                unlockBook(targetData.name);
+            } else if (gameState.stage === "성장기") {
+                gameState.stage = "완전체";
+                const targetData = MONSTER_DB[gameState.minuteId].완전체[branch];
+                applyMonsterData(targetData);
+                unlockBook(targetData.name);
+            }
+            
+            gameState.lastEvolvedTime = Date.now();
+            saveGame();
+            renderDOM();
+            updateBookUI();
+            alert(`🎉 몬스터가 ${gameState.stage}(으)로 진화했습니다!`);
+        }
+    }
+
+    // --- 5. 패스워드 기반 암호화 가상 통신 대전 시스템 (규칙 5, 9, 10) ---
+    function generateBattleCode() {
+        if (gameState.stage === "유년기" || !gameState.isHatched) {
+            alert("⚠️ 배틀은 성장기 단계부터 참가할 수 있습니다!");
+            return;
+        }
+        // 핵심 전술 스탯을 은닉하기 위해 Base64 문자열 변환 패킹 처리
+        const rawCode = `${gameState.name}|${gameState.str}|${gameState.maxHp}|${gameState.spd}|${gameState.type}`;
+        const encryptedCode = btoa(encodeURIComponent(rawCode));
+        
+        navigator.clipboard.writeText(encryptedCode);
+        alert("📋 내 대전 패스워드 코드가 복사되었습니다! 친구에게 공유하세요.");
+    }
+
+    function startBattle() {
+        if (gameState.stage === "유년기" || !gameState.isHatched) {
+            alert("⚠️ 배틀은 성장기 단계부터 가능합니다!");
+            return;
+        }
+
+        const input = document.getElementById("opponent-code").value.trim();
+        if(!input) return alert("상대방 패스워드 코드를 넣어주세요.");
+
+        try {
+            const decoded = decodeURIComponent(atob(input));
+            const [opName, opStr, opMaxHp, opSpd, opType] = decoded.split("|");
+            
+            if(!opName || !opStr) throw new Error("코드 변조 의심");
+
+            // 전투 시작 기동 및 패널티 정산
+            let myHp = gameState.maxHp;
+            if (gameState.isInjured) {
+                myHp = Math.floor(myHp * 0.8); // 부상 낙폭 가중치 적용 (규칙 10)
+            }
+            let enemyHp = parseInt(opMaxHp);
+            
+            let logArea = document.getElementById("battle-log");
+            logArea.innerHTML = "⚔️ 전투 개시! <br>";
+
+            // 상성 가위바위보 연산 처리 함수 (규칙 5)
+            // 백신(바위) > 데이터(보) > 바이러스(가위)
+            let matchUpBonus = 1.0;
+            if((gameState.type === "백신" && opType === "데이터") ||
+               (gameState.type === "데이터" && opType === "바이러스") ||
+               (gameState.type === "바이러스" && opType === "백신")) {
+                matchUpBonus = 1.3; // 상성 우위 공격력 30% 증폭
+                logArea.innerHTML += "⭐ 상성 우위 확보!<br>";
+            } else if (gameState.type !== opType) {
+                matchUpBonus = 0.7; // 상성 열세 역보정
+            }
+
+            // 속도 배틀 루프 연산
+            let turn = (gameState.spd >= parseInt(opSpd)) ? "ME" : "ENEMY";
+            let rounds = 0;
+
+            while(myHp > 0 && enemyHp > 0 && rounds < 10) {
+                rounds++;
+                if(turn === "ME") {
+                    let damage = Math.floor(gameState.str * matchUpBonus);
+                    enemyHp -= damage;
+                    turn = "ENEMY";
+                } else {
+                    let damage = Math.floor(parseInt(opStr));
+                    myHp -= damage;
+                    turn = "ME";
+                }
+            }
+
+            // 최종 전과 판정 및 부상 주사위 굴리기
+            if(myHp > enemyHp) {
+                logArea.innerHTML += `🏆 승리: ${opName}을 물리쳤습니다!`;
+            } else {
+                logArea.innerHTML += `💀 패배: ${opName}에게 졌습니다.`;
+                if(Math.random() < 0.6) { // 60% 확률로 크리티컬 부상 전이 (규칙 10)
+                    gameState.isInjured = true;
+                    logArea.innerHTML += `<br>⚠️ 경고: 배틀 충격으로 부상을 입었습니다!`;
+                }
+            }
+
+            saveGame();
+            renderDOM();
+
+        } catch(e) {
+            alert("❌ 유효하지 않거나 깨진 대전 패스워드 코드입니다.");
+        }
+    }
+
+    function healMonster() {
+        if(gameState.isInjured) {
+            gameState.isInjured = false;
+            saveGame();
+            renderDOM();
+            alert("🩹 치료 완료! 다음 배틀에서 100% 능력을 발휘합니다.");
+        } else {
+            alert("몬스터가 건강하여 치료할 필요가 없습니다.");
+        }
+    }
+
+    // --- 6. 도감 시스템 및 뷰어 (규칙 11) ---
+    function unlockBook(monsterName) {
+        if(!gameState.unlockedMonsters.includes(monsterName)) {
+            gameState.unlockedMonsters.push(monsterName);
+        }
+    }
+
+    function updateBookUI() {
+        const grid = document.getElementById("book-grid-area");
+        grid.innerHTML = "";
+        
+        // 60종의 매트릭스를 전수 검사하여 해금 필터링 매핑
+        for(let i=0; i<60; i++) {
+            const yoon = MONSTER_DB[i].유년기.name;
+            const sung0 = MONSTER_DB[i].성장기[0].name;
+            const sung1 = MONSTER_DB[i].성장기[1].name;
+            
+            [yoon, sung0, sung1].forEach(mName => {
+                const item = document.createElement("div");
+                item.className = "book-item";
+                if(gameState.unlockedMonsters.includes(mName)) {
+                    item.innerText = mName;
+                    item.style.background = "#fff";
+                } else {
+                    item.innerText = "???";
+                }
+                grid.appendChild(item);
+            });
+        }
+    }
+
+    // --- 7. 하드웨어 물리 키 인터페이스 동기화 제어 ---
+    function pressButton(type) {
+        if(type === 'A') {
+            // 패널 로테이션 순환 이동
+            currentPanelIdx = (currentPanelIdx + 1) >= panels.length ? 0 : currentPanelIdx + 1;
+            openPanel(panels[currentPanelIdx]);
+        } else if(type === 'B') {
+            // 선택 액션: 알 상태일 때 누르면 즉시 부화 연동
+            if(gameState.stage === "알") {
+                hatchEgg();
+            } else {
+                alert(`[${gameState.name}]와 교감 중입니다.`);
+            }
+        } else if(type === 'C') {
+            // 취소 액션: 모든 확장 인터페이스 서브 패널을 닫고 디폴트 LCD 홈스크린으로 복귀
+            currentPanelIdx = -1;
+            panels.forEach(p => document.getElementById(p).classList.remove("active-panel"));
+            document.getElementById("status-line").innerText = "메인 화면 복귀";
+        }
+    }
+
+    function openPanel(id) {
+        panels.forEach(p => {
+            document.getElementById(p).classList.remove("active-panel");
+        });
+        document.getElementById(id).classList.add("active-panel");
+        document.getElementById("status-line").innerText = `메뉴 진입: ${id.replace('panel-', '')}`;
+    }
+
+    // --- 8. 가상 렌더링 파이프라인 (DOM 동기화) ---
+    function renderDOM() {
+        document.getElementById("display-stage").innerText = gameState.stage;
+        document.getElementById("display-type").innerText = gameState.type;
+        document.getElementById("display-injury").innerText = gameState.isInjured ? "🩹부상" : "";
+        
+        const view = document.getElementById("view-area");
+        if(gameState.stage === "알") {
+            view.innerHTML = `<div class="egg-sprite" id="egg-element" onclick="hatchEgg()"></div>`;
+            document.getElementById("status-line").innerText = "알을 클릭하거나 B를 눌러 부화!";
+        } else {
+            // 성장 단계에 맞춰 물리 크기(Scale) 분기 유도 (규칙 6 반영)
+            view.innerHTML = `<div class="monster-sprite stage-${gameState.stage}" id="monster-element"></div>`;
+            document.getElementById("status-line").innerText = `Lv. ${gameState.name}`;
+        }
+
+        // 실시간 서브 스탯 데이터 필드 동기화 바인딩
+        document.getElementById("stat-name").innerText = gameState.name;
+        document.getElementById("stat-code").innerText = gameState.code;
+        document.getElementById("stat-str").innerText = gameState.str;
+        document.getElementById("stat-hp").innerText = `${gameState.hp} / ${gameState.maxHp}`;
+        document.getElementById("stat-spd").innerText = gameState.spd;
+        document.getElementById("stat-type").innerText = gameState.type;
+    }
+</script>
+
+</body>
+</html>
