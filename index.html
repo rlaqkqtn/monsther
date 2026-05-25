@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>디지털 몬스터 다마고치 오퍼레이션 V8</title>
+    <title>디지털 몬스터 다마고치 V9 (연타형 하단 인터페이스)</title>
     <style>
         body {
             background-color: #1a1c1e;
@@ -19,36 +19,36 @@
             box-sizing: border-box;
         }
         
-        /* 규칙 29: 인터페이스 꼬임 방지를 위한 2단 분리 메인 프레임 워크 */
+        /* 규칙 32: 기기 아래쪽에 인터페이스가 위치하도록 수직 배열 구조 채택 */
         .main-app-container {
             display: flex;
-            flex-direction: row;
-            gap: 40px;
+            flex-direction: column;
+            gap: 25px;
             background-color: #2d3135;
-            padding: 30px;
+            padding: 25px;
             border-radius: 24px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.7);
             border: 4px solid #42464a;
-            max-width: 950px;
-            width: 100%;
-            align-items: flex-start;
+            width: 390px;
+            box-sizing: border-box;
+            align-items: center;
         }
 
-        /* [좌측] 다마고치 하드웨어 기기 아키텍처 */
+        /* [상단] 다마고치 본체 하드웨어 크래들 */
         .tamagotchi-hardware {
             background: radial-gradient(circle, #3a7bd5 40%, #3a6073 100%);
-            width: 360px;
+            width: 100%;
             padding: 35px 20px;
-            border-radius: 110px / 140px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5), inset 0 -8px 15px rgba(0,0,0,0.4);
+            border-radius: 90px / 110px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4), inset 0 -8px 15px rgba(0,0,0,0.4);
             border: 6px solid #2a4d7c;
             text-align: center;
-            flex-shrink: 0;
+            box-sizing: border-box;
         }
         .lcd-screen {
             background-color: #b4cba4;
-            width: 280px;
-            height: 240px;
+            width: 100%;
+            height: 230px;
             margin: 0 auto;
             border-radius: 10px;
             border: 12px solid #1c1d1f;
@@ -78,70 +78,69 @@
             position: relative;
         }
         
-        /* 규칙 23: 모양 다양화 및 도트 스케일 단위 볼륨 보정 */
+        /* 규칙 23: 몬스터 이미지가 너무 작게 보이지 않도록 베이스 픽셀 유닛 및 복합 섀도 스케일 업 */
         .monster-dot-matrix {
             position: relative;
             display: inline-block;
             transition: transform 0.15s ease;
         }
-        .pixel-size-유년기 { width: 8px; height: 8px; animation: dot-breathe 0.6s infinite alternate; }
-        .pixel-size-성장기 { width: 11px; height: 11px; animation: dot-bounce 0.7s infinite alternate; }
-        .pixel-size-완전체 { width: 15px; height: 15px; animation: dot-float 1.2s infinite alternate; }
+        .pixel-size-유년기 { width: 9px; height: 9px; animation: dot-breathe 0.6s infinite alternate; }
+        .pixel-size-성장기 { width: 14px; height: 14px; animation: dot-bounce 0.7s infinite alternate; }
+        .pixel-size-완전체 { width: 20px; height: 20px; animation: dot-float 1.2s infinite alternate; }
         
-        /* 규칙 28: 시간 기반 동적 인젝션을 위한 베이스 알 스프라이트 */
         .egg-sprite {
-            width: 55px; height: 68px;
+            width: 65px; height: 80px;
             border: 3px solid #111;
             border-radius: 50% 50% 45% 45%;
-            box-shadow: inset -6px -6px 0 rgba(0,0,0,0.2);
+            box-shadow: inset -8px -8px 0 rgba(0,0,0,0.25);
             animation: egg-wobble 0.8s infinite alternate;
             cursor: pointer;
         }
         .egg-hatching { animation: egg-furious-shake 0.08s infinite alternate !important; }
-        .dead-sprite { font-size: 60px; animation: ghost-drift 2s infinite ease-in-out; }
+        .dead-sprite { font-size: 65px; animation: ghost-drift 2s infinite ease-in-out; }
 
-        @keyframes egg-wobble { 0% { transform: rotate(-6deg); } 100% { transform: rotate(6deg); } }
-        @keyframes egg-furious-shake { 0% { transform: translateX(-8px) rotate(-6deg); } 100% { transform: translateX(8px) rotate(6deg); } }
-        @keyframes dot-breathe { 0% { transform: scale(1); } 100% { transform: scale(1.15, 0.9); } }
-        @keyframes dot-bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-12px); } }
-        @keyframes dot-float { 0% { transform: translateY(0) translateX(-3px); } 100% { transform: translateY(-8px) translateX(3px); } }
-        @keyframes ghost-drift { 0% { transform: translateY(0) opacity: 0.6; } 50% { transform: translateY(-12px) opacity: 1; } 100% { transform: translateY(0) opacity: 0.6; } }
+        @keyframes egg-wobble { 0% { transform: rotate(-7deg); } 100% { transform: rotate(7deg); } }
+        @keyframes egg-furious-shake { 0% { transform: translateX(-6px) rotate(-5deg); } 100% { transform: translateX(6px) rotate(5deg); } }
+        @keyframes dot-breathe { 0% { transform: scale(1); } 100% { transform: scale(1.2, 0.85); } }
+        @keyframes dot-bounce { 0% { transform: translateY(0); } 100% { transform: translateY(-15px); } }
+        @keyframes dot-float { 0% { transform: translateY(0) translateX(-4px); } 100% { transform: translateY(-10px) translateX(4px); } }
+        @keyframes ghost-drift { 0% { transform: translateY(0) opacity: 0.5; } 50% { transform: translateY(-15px) opacity: 1; } 100% { transform: translateY(0) opacity: 0.5; } }
 
-        .poop-area { position: absolute; bottom: 4px; right: 8px; display: flex; gap: 3px; }
-        .poop { width: 12px; height: 12px; background-color: #5d4037; border-radius: 50% 50% 20% 20%; border: 1px solid #111; }
-        .status-text { font-size: 11px; font-weight: bold; height: 30px; display: flex; align-items: center; justify-content: center; text-align: center; color: #1c2d15; border-top: 1px dashed #2b3a22; padding-top: 2px;}
+        .poop-area { position: absolute; bottom: 4px; right: 8px; display: flex; gap: 4px; }
+        .poop { width: 14px; height: 14px; background-color: #5d4037; border-radius: 50% 50% 20% 20%; border: 1px solid #111; }
+        .status-text { font-size: 11px; font-weight: bold; height: 32px; display: flex; align-items: center; justify-content: center; text-align: center; color: #1c2d15; border-top: 1px dashed #2b3a22; padding-top: 2px;}
         
-        .buttons-row { display: flex; justify-content: center; gap: 30px; margin-top: 20px; }
+        .buttons-row { display: flex; justify-content: center; gap: 25px; margin-top: 20px; }
         .btn {
-            width: 52px; height: 52px; background-color: #e0e0e0; border-radius: 50%;
+            width: 50px; height: 50px; background-color: #e0e0e0; border-radius: 50%;
             border: 3px solid #757575; box-shadow: 0 4px 0 #616161; cursor: pointer;
-            font-weight: bold; font-size: 15px; display: flex; align-items: center; justify-content: center;
+            font-weight: bold; font-size: 14px; display: flex; align-items: center; justify-content: center;
         }
         .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #616161; }
-        .btn-label { display: flex; justify-content: space-around; font-size: 10px; color: #fff; margin-top: 6px; font-weight: bold; letter-spacing: 0.5px; }
+        .btn-label { display: flex; justify-content: space-around; font-size: 10px; color: #fff; margin-top: 6px; font-weight: bold; }
 
-        /* [우측] 디지털 대시보드 관제 레이아웃 컴포넌트 */
+        /* [하단] 고정형 디지털 대시보드 오퍼레이션 패널 (인터페이스 불변 레이아웃) */
         .dashboard-panel {
-            flex-grow: 1;
+            width: 100%;
             background-color: #ffffff;
             border-radius: 14px;
-            padding: 20px;
+            padding: 16px;
             box-sizing: border-box;
-            min-height: 405px;
+            min-height: 380px;
             display: flex;
             flex-direction: column;
             border: 4px solid #1a1c1e;
         }
         .dashboard-tabs {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             border-bottom: 3px solid #1a1c1e;
-            padding-bottom: 10px;
-            margin-bottom: 15px;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
         }
         .tab-button {
             flex-grow: 1;
-            padding: 8px 4px;
+            padding: 6px 2px;
             font-size: 11px;
             font-weight: bold;
             background-color: #eceff1;
@@ -159,23 +158,47 @@
         .panel-content { display: none; flex-grow: 1; }
         .panel-content.active-content { display: block; }
         
-        .flex-space { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center; font-size: 13px; font-weight: bold;}
-        hr { border: none; border-top: 2px dashed #cfd8dc; margin: 12px 0; }
+        .flex-space { display: flex; justify-content: space-between; margin-bottom: 6px; align-items: center; font-size: 12px; font-weight: bold;}
+        hr { border: none; border-top: 2px dashed #cfd8dc; margin: 10px 0; }
         
-        /* 단련장 게이지 레이아웃 */
-        .training-container { width: 100%; display: flex; flex-direction: column; align-items: center; margin-top: 5px;}
-        .gauge-bar { width: 100%; height: 24px; background: #222; border: 2px solid #000; position: relative; border-radius: 4px; overflow: hidden; }
-        .target-zone { position: absolute; top: 0; height: 100%; background: #4caf50; }
-        .target-perfect { position: absolute; top: 0; height: 100%; background: #ffeb3b; width: 12px; }
-        .cursor { position: absolute; top: 0; width: 6px; height: 100%; background: #ff1744; left: 0; box-shadow: 0 0 4px #fff;}
+        /* 규칙 31: 연타 트레이닝 조작 컴포넌트 */
+        .mash-arena {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .big-mash-trigger {
+            width: 100%;
+            padding: 25px;
+            font-size: 22px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #ff5252, #ff1744);
+            color: white;
+            border: 3px solid #b71c1c;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #b71c1c;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+        .big-mash-trigger:active:not(:disabled) {
+            transform: translateY(4px);
+            box-shadow: 0 2px 0 #b71c1c;
+        }
+        .big-mash-trigger:disabled {
+            background: #b0bec5;
+            border-color: #78909c;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
 
-        /* 대전 암호 인터페이스 */
-        input[type="text"] { width: 65%; padding: 7px; font-size: 12px; border: 2px solid #222; border-radius: 4px; font-weight: bold;}
-        button.action-btn { cursor: pointer; padding: 8px 12px; font-size: 12px; font-weight: bold; border: 2px solid #222; background: #fff; border-radius: 4px; }
+        input[type="text"] { width: 60%; padding: 6px; font-size: 12px; border: 2px solid #222; border-radius: 4px; font-weight: bold;}
+        button.action-btn { cursor: pointer; padding: 6px 10px; font-size: 11px; font-weight: bold; border: 2px solid #222; background: #fff; border-radius: 4px; }
         button.action-btn:active { background: #ddd; }
         
-        .book-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; max-height: 250px; overflow-y: auto; padding-right: 4px;}
-        .book-item { padding: 6px; border: 2px solid #333; text-align: center; background: #cfd8dc; font-size: 10px; font-weight: bold; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
+        .book-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; max-height: 220px; overflow-y: auto; }
+        .book-item { padding: 5px; border: 2px solid #333; text-align: center; background: #cfd8dc; font-size: 9px; font-weight: bold; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;}
     </style>
 </head>
 <body>
@@ -195,7 +218,7 @@
                 <div class="poop-area" id="poop-container"></div>
             </div>
             
-            <div class="status-text" id="status-line">알을 잠금 해제하여 연산을 개시하십시오.</div>
+            <div class="status-text" id="status-line">가상 연산 코어를 부화시켜 주십시오.</div>
         </div>
 
         <div class="buttons-row">
@@ -204,16 +227,16 @@
             <button class="btn" onclick="pressButton('C')">C</button>
         </div>
         <div class="btn-label">
-            <span>대시보드(A)</span><span>상호작용(B)</span><span>화면취소(C)</span>
+            <span>메뉴전환(A)</span><span>상호작용(B)</span><span>취소/홈(C)</span>
         </div>
     </div>
 
     <div class="dashboard-panel">
         <div class="dashboard-tabs">
-            <button class="tab-button active-tab" id="tab-0" onclick="switchTab(0)">📊 코어스탯/케어</button>
-            <button class="tab-button" id="tab-1" onclick="switchTab(1)">🏋️ 타이밍단련</button>
-            <button class="tab-button" id="tab-2" onclick="switchTab(2)">⚔️ 패스워드배틀</button>
-            <button class="tab-button" id="tab-3" onclick="switchTab(3)">📖 발견도감</button>
+            <button class="tab-button active-tab" id="tab-0" onclick="switchTab(0)">📊 스탯/케어</button>
+            <button class="tab-button" id="tab-1" onclick="switchTab(1)">🏋️ 연타훈련</button>
+            <button class="tab-button" id="tab-2" onclick="switchTab(2)">⚔️ 암호배틀</button>
+            <button class="tab-button" id="tab-3" onclick="switchTab(3)">📖 해금도감</button>
         </div>
 
         <div class="panel-content active-content" id="content-0">
@@ -221,85 +244,82 @@
             <div class="flex-space"><span>유니크 코드:</span> <span id="stat-code" style="color:#1b5e20;">-</span></div>
             <div class="flex-space"><span>🥩 포만 허기진척:</span> <span id="stat-hungry">-</span></div>
             <div class="flex-space"><span>💪 물리 연산 공격력:</span> <span id="stat-str">-</span></div>
-            <div class="flex-space"><span>❤️ 연산 세생명력:</span> <span id="stat-hp">-</span></div>
+            <div class="flex-space"><span>❤️ 연산 재생명력:</span> <span id="stat-hp">-</span></div>
             <div class="flex-space"><span>⚡ 기동 프레임 스피드:</span> <span id="stat-spd">-</span></div>
             <div class="flex-space"><span>🧬 고유 상성 인자:</span> <span id="stat-type" style="color:#e65100;">-</span></div>
-            <div class="flex-space" style="color:#1b5e20;"><span>🏋️ 성공한 단련 횟수:</span> <span id="stat-train-count">0 / 20 회</span></div>
+            <div class="flex-space" style="color:#1b5e20;"><span>🏋️ 누적 훈련 성과:</span> <span id="stat-train-count">0 / 20 회</span></div>
             
             <div class="flex-space" id="debuff-row" style="color:#b71c1c; display:none; background:#ffebee; padding:4px; border-radius:4px;">
-                <span>💥 단련 대실패 패널티:</span> <span>위축 (대미지 -30%)</span>
+                <span>💥 훈련 대실패 상태:</span> <span>위축 (공격력 -30% 페널티)</span>
             </div>
             <div class="flex-space" id="injury-count-row" style="color:red; display:none; background:#ffebee; padding:4px; border-radius:4px;">
-                <span>⚠️ 부상 누적 패배 카운트:</span> <span id="stat-injury-count">0</span>
+                <span>⚠️ 부상 누적 패배:</span> <span id="stat-injury-count">0</span>
             </div>
             
             <hr>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;" id="care-control-matrix">
-                <button class="action-btn" onclick="feedMonster()" style="background:#fff3e0;">🍖 사료 피딩</button>
-                <button class="action-btn" onclick="cleanPoop()" style="background:#e8f5e9;">🧹 배설물 소거</button>
-                <button class="action-btn" onclick="healMonster()" style="background:#ffebee; grid-column: span 2;">🩹 긴급 연산 크랙 치료</button>
+                <button class="action-btn" onclick="feedMonster()" style="background:#fff3e0;">🍖 사료 급여</button>
+                <button class="action-btn" onclick="cleanPoop()" style="background:#e8f5e9;">🧹 배설물 제거</button>
+                <button class="action-btn" onclick="healMonster()" style="background:#ffebee; grid-column: span 2;">🩹 부상 크랙 복구 치료</button>
             </div>
-            <button class="action-btn" onclick="forceResetGame()" id="reset-button" style="background:#eceff1; width:100%; margin-top:8px; display:none; color:#37474f;">🔄 시스템 완전 초기화 (새 코어 로드)</button>
+            <button class="action-btn" onclick="forceResetGame()" id="reset-button" style="background:#eceff1; width:100%; margin-top:8px; display:none; color:#37474f;">🔄 시스템 완전 리부트 (새 코어 로드)</button>
         </div>
 
         <div class="panel-content" id="content-1">
-            <h4 style="margin: 0 0 10px 0;">🏋️ 고속 동기화 리듬 트레이닝</h4>
-            <p style="margin:0 0 10px 0; font-size:11px; color:#c62828; font-weight:bold;">※ 단련 가동 시 30% 확률로 포만도 허기가 1칸 급감합니다.</p>
-            <div class="training-container">
-                <div class="gauge-bar">
-                    <div class="target-zone" id="train-target-zone"></div>
-                    <div class="target-perfect" id="train-target-perfect"></div>
-                    <div class="cursor" id="train-cursor"></div>
-                </div>
-                <button class="action-btn" onclick="toggleTraining()" id="train-control-btn" style="margin-top: 15px; width: 100%; background: #ffe082;">타이밍 트리거 락온 / 해제</button>
+            <h4 style="margin: 0 0 6px 0;">🏋️ 리미트 브레이크 5초 스피드 연타</h4>
+            <p style="margin:0 0 10px 0; font-size:11px; color:#555;">5초 내 연타 수 집계: 30회↑ 강공격 / 20회↑ 중공격 / 10회↑ 약공격<br><span style="color:red; font-weight:bold;">※ 10회 미만 실패 시 위축 패널티 유도 (훈련 시 30% 확률로 허기 하강)</span></p>
+            
+            <div class="mash-arena">
+                <button class="action-btn" id="train-control-btn" onclick="startMashTraining()" style="background:#fff59d; width:100%; padding:10px;">훈련 가동 시퀀스 개시</button>
+                <button class="big-mash-trigger" id="mash-btn" onclick="registerMash()" disabled>CLICK MASH!!!</button>
             </div>
-            <div id="train-result-log" style="margin-top:15px; font-weight:bold; font-size:13px; text-align:center; min-height:35px; white-space: pre-line;"></div>
+            <div id="train-result-log" style="margin-top:12px; font-weight:bold; font-size:12px; text-align:center; min-height:40px; white-space: pre-line; color:#333;"></div>
         </div>
 
         <div class="panel-content" id="content-2">
-            <h4 style="margin: 0 0 6px 0;">⚔️ 패스워드 배틀 스트림 프로토콜</h4>
-            <p style="margin:0 0 10px 0; font-size:11px; color:#555;">성장기부터 전선 투입 가능. 부상 방치 패배 시 완전 소멸 위험성 귀속.</p>
-            <button class="action-btn" onclick="generateBattleCode()" style="background:#e3f2fd; width: 100%; margin-bottom:12px;">내 몬스터 배틀 암호화 코드 추출</button>
+            <h4 style="margin: 0 0 4px 0;">⚔️ 패스워드 배틀 프로토콜</h4>
+            <p style="margin:0 0 8px 0; font-size:11px; color:#666;">성장기 이상 가동 가능. 부상 방치 패배 시 소멸 판정 귀속.</p>
+            <button class="action-btn" onclick="generateBattleCode()" style="background:#e3f2fd; width: 100%; margin-bottom:8px;">내 크리처 배틀 암호 패킷 복사</button>
             <div class="flex-space">
-                <input type="text" id="opponent-code" placeholder="상대방 유저 암호 코드 입력">
-                <button class="action-btn" onclick="startBattle()" style="background:#fbe9e7;">듀얼 개시</button>
+                <input type="text" id="opponent-code" placeholder="상대방 암호 패킷 소스 입력">
+                <button class="action-btn" onclick="startBattle()" style="background:#fbe9e7;">듀얼 연계</button>
             </div>
-            <div id="battle-log" style="margin-top:12px; border:2px solid #1a1c1e; background:#fafafa; padding:8px; font-size:11px; height:110px; overflow-y:auto; border-radius:4px;"></div>
+            <div id="battle-log" style="margin-top:8px; border:2px solid #1a1c1e; background:#fafafa; padding:6px; font-size:11px; height:110px; overflow-y:auto; border-radius:4px;"></div>
         </div>
 
         <div class="panel-content" id="content-3">
-            <h4 style="margin: 0 0 10px 0;">📖 도감 아카이브 데이터베이스 (60분 개체 체계)</h4>
+            <h4 style="margin: 0 0 8px 0;">📖 가상 디지타마 도감 인덱스 (60분 스펙트럼)</h4>
             <div class="book-grid" id="book-grid-area"></div>
         </div>
     </div>
 </div>
 
 <script>
-    const DEBUG_MODE = false; // true 변경 시 진화 틱이 초 단위로 대폭 압축됩니다.
+    const DEBUG_MODE = false; // true 세팅 시 진화 대기 타이머가 초 단위로 초고속 압축됩니다.
 
-    // --- 1. 전역 60종 고유 가상 몬스터 데이터 모델 생성기 ---
+    // --- 1. 고유 60분 기반 몬스터 데이터 아키텍처 ---
     const MONSTER_DB = {};
     const types = ["백신", "데이터", "바이러스"];
-    const namesPrefix = ["아크","타이탄","가이아","사이버","엔젤","볼트","블레이드","미라지","팬텀","다크"];
-    const namesSuffix = ["메이저","체이서","커맨더","가디언","스팅어","워리어"];
+    const prefixes = ["알파","제타","네오","기가","볼텍스","레이저","미라지","섀도우","스파크","타이탄"];
+    const suffixes = ["렉스","가디언","스팅어","체이서","슬레이어","솔저"];
 
     for(let i = 0; i < 60; i++) {
-        let nameSeed = namesPrefix[i % namesPrefix.length] + namesSuffix[i % namesSuffix.length];
+        let nameSeed = prefixes[i % prefixes.length] + suffixes[i % suffixes.length];
         MONSTER_DB[i] = {
             code: "DM-" + String(i + 1).padStart(2, '0'),
-            유년기: { name: "뾰로롱" + (i + 1) + "몬", str: 10, hp: 55, spd: 7, type: types[i % 3] },
+            유년기: { name: "코코" + (i + 1) + "몬", str: 12, hp: 60, spd: 8, type: types[i % 3] },
             성장기: [
-                { name: nameSeed + "몬", str: 24, hp: 110, spd: 16, type: types[(i+1)%3] }, 
-                { name: "레어" + nameSeed, str: 18, hp: 90, spd: 21, type: types[(i+2)%3] }
+                { name: nameSeed + "몬", str: 26, hp: 115, spd: 17, type: types[(i+1)%3] }, 
+                { name: "뮤턴트" + nameSeed, str: 19, hp: 95, spd: 22, type: types[(i+2)%3] }
             ],
             완전체: [
-                { name: "얼티밋" + nameSeed, str: 45, hp: 170, spd: 30, type: types[(i+2)%3] }, 
-                { name: "섀도우" + nameSeed, str: 30, hp: 130, spd: 22, type: types[i%3] }
+                { name: "카이저" + nameSeed, str: 48, hp: 180, spd: 32, type: types[(i+2)%3] }, 
+                { name: "제너럴" + nameSeed, str: 32, hp: 140, spd: 24, type: types[i%3] }
             ]
         };
     }
 
-    // --- 2. 코어 상태 변수 엔진 초기화 ---
+    // --- 2. 라이프 데이터 상태 객체 ---
     let gameState = {
         hasEgg: true, isHatched: false, isDead: false, isHatching: false,
         minuteId: 0, stage: "알", branchIndex: 0,
@@ -312,28 +332,24 @@
     };
 
     let currentTabIdx = 0;
-    let trainInterval = null;
-    let cursorPosition = 0;
-    let cursorDirection = 7; 
-    let isTrainingActive = false;
-    let targetZoneLeft = 50;
-    let targetZoneWidth = 40;
-    let perfectLeft = 70;
+    let isMashingActive = false;
+    let mashCount = 0;
+    let secondsLeft = 5;
+    let mashTimerInterval = null;
 
     window.onload = function() {
         loadGame();
         renderDOM();
         updateBookUI();
-        setInterval(gameBackgroundTick, 5000); // 5초 주기 백그라운드 연산 루프
+        setInterval(gameEnvironmentTick, 5000); // 환경 갱신 핸들러 루프 가동
     };
 
-    function saveGame() { localStorage.setItem("tamagotchi_v8_save", JSON.stringify(gameState)); }
+    function saveGame() { localStorage.setItem("tamagotchi_v9_save", JSON.stringify(gameState)); }
     function loadGame() {
-        const saved = localStorage.getItem("tamagotchi_v8_save");
-        if(saved) { try { gameState = JSON.parse(saved); } catch(e) { console.error("데이터 로드 실패"); } }
+        const saved = localStorage.getItem("tamagotchi_v9_save");
+        if(saved) { try { gameState = JSON.parse(saved); } catch(e) { console.error("세이브 연동 파싱 실패"); } }
     }
 
-    // 규칙 24: 진화 단계별 최대 허기 캐파 연산
     function getMaxHunger(stage) {
         if (stage === "유년기") return 4;
         if (stage === "성장기") return 6;
@@ -341,53 +357,44 @@
         return 4;
     }
 
-    // 규칙 28: 생성 시점 분에 기반한 고유 보색 그라데이션 값 추출
     function getEggGradient(min) {
         let h1 = (min * 6) % 360;
-        let h2 = (h1 + 140) % 360;
+        let h2 = (h1 + 150) % 360;
         return `linear-gradient(135deg, hsl(${h1}, 95%, 60%), hsl(${h2}, 90%, 45%))`;
     }
 
-    // --- 3. 백그라운드 환경 가동 틱 (규칙 27 가변 배고픔 소모 반영) ---
-    function gameBackgroundTick() {
+    // --- 3. 실시간 환경 관리 핸들러 ---
+    function gameEnvironmentTick() {
         if (!gameState.isHatched || gameState.isDead || gameState.isHatching) return;
 
-        // 규칙 27: 진화할수록 허기 감소 주기 확률을 억제하여 속도 감소 연출
         let hungerLossChance = 0.45; 
         if (gameState.stage === "성장기") hungerLossChance = 0.22;
         if (gameState.stage === "완전체") hungerLossChance = 0.10;
 
-        if (Math.random() < hungerLossChance && gameState.hungry > 0) {
-            gameState.hungry--;
-        }
+        if (Math.random() < hungerLossChance && gameState.hungry > 0) { gameState.hungry--; }
 
-        if (gameState.stage === "유년기" && gameState.hungry <= 1) {
-            gameState.starveExperience++;
-        }
+        if (gameState.stage === "유년기" && gameState.hungry <= 1) { gameState.starveExperience++; }
 
         if (gameState.hungry === 0) {
             gameState.starvingTicks++;
-            if (gameState.starvingTicks >= 8) { 
-                triggerDeath("치명적이고 장기적인 영양 실조로 인한 코어 정지"); return; 
-            }
+            if (gameState.starvingTicks >= 8) { triggerDeath("장기 공복 유지로 인한 내부 에너지 회로 단선"); return; }
         } else { gameState.starvingTicks = 0; }
 
-        if (Math.random() < 0.18 && gameState.poopCount < 4) { gameState.poopCount++; }
+        if (Math.random() < 0.15 && gameState.poopCount < 4) { gameState.poopCount++; }
 
         checkEvolution();
         saveGame();
         renderDOM();
     }
 
-    // --- 4. 알 흔들림 및 부화 이벤트 핸들러 (규칙 25, 26, 28 종합) ---
+    // --- 4. 디지타마 부화 시퀀스 ---
     function hatchEgg() {
         if (!gameState.hasEgg || gameState.isHatched || gameState.isDead || gameState.isHatching) return;
         
         gameState.isHatching = true;
         renderDOM();
-        document.getElementById("status-line").innerText = "🥚 코어가 반응합니다! 알이 요동치기 시작합니다...!";
+        document.getElementById("status-line").innerText = "🥚 알이 외부 주파수를 감지하고 요동칩니다!";
         
-        // 규칙 25: 2.5초 격렬 셰이킹 후 공복 상태 부화
         setTimeout(() => {
             const currentMinute = new Date().getMinutes();
             
@@ -397,7 +404,7 @@
             gameState.minuteId = currentMinute;
             gameState.stage = "유년기";
             gameState.lastEvolvedTime = Date.now();
-            gameState.hungry = 0; // 규칙 25: 부화 즉시 공복(0) 돌입
+            gameState.hungry = 0; // 규칙 25: 부화 시 공복 0 진입
             gameState.trainCount = 0;
             gameState.starveExperience = 0;
             gameState.injuredDefeatCount = 0;
@@ -406,7 +413,7 @@
             applyMonsterData(MONSTER_DB[currentMinute].유년기, false);
             saveGame(); renderDOM(); updateBookUI();
             switchTab(0);
-            alert("🐣 알이 부화했습니다! 허기가 완전히 비어있는 공복 상태이오니 급식을 즉시 시행하세요.");
+            alert("🐣 부화 성공! 현재 0단계 공복 상태입니다. 급여를 시급히 수행하십시오.");
         }, 2500);
     }
 
@@ -414,17 +421,14 @@
         gameState.name = data.name;
         gameState.code = MONSTER_DB[gameState.minuteId].code;
         
-        // 규칙 20: 기존 공격력에서 가중 비례 누적 증가
-        gameState.str = isEvolving ? gameState.str + Math.floor(data.str * 0.8) : data.str;
+        gameState.str = isEvolving ? gameState.str + Math.floor(data.str * 0.85) : data.str;
         gameState.maxHp = isEvolving ? gameState.maxHp + data.hp : data.hp;
         gameState.hp = gameState.maxHp;
         gameState.spd = isEvolving ? gameState.spd + data.spd : data.spd;
         
-        // 규칙 26: 진화 도래 시 20% 변이율 적용
         if (isEvolving && Math.random() < 0.2) {
             const mutTypes = ["백신", "데이터", "바이러스"];
             gameState.type = mutTypes[Math.floor(Math.random() * 3)];
-            console.log("🧬 돌연변이 인자 개입 완료");
         } else {
             gameState.type = data.type;
         }
@@ -436,21 +440,17 @@
         if (!gameState.isHatched || gameState.stage === "완전체" || gameState.isDead) return;
 
         const elapsed = Date.now() - gameState.lastEvolvedTime;
-        // 규칙 17: 진화 타이머 규격 (성장기까지 120초, 완전체까지 180초)
         let requiredTime = gameState.stage === "유년기" ? 120000 : 180000;
-        if(DEBUG_MODE) requiredTime = gameState.stage === "유년기" ? 8000 : 12000;
+        if(DEBUG_MODE) requiredTime = gameState.stage === "유년기" ? 7000 : 12000;
 
         if (elapsed >= requiredTime) {
             let branch = 0;
-
             if (gameState.stage === "유년기") {
-                // 규칙 19: 유년기 방치 이력 조회
                 branch = (gameState.starveExperience > 2) ? 1 : 0;
                 gameState.stage = "성장기";
                 gameState.branchIndex = branch;
                 applyMonsterData(MONSTER_DB[gameState.minuteId].성장기[branch], true);
             } else if (gameState.stage === "성장기") {
-                // 규칙 19: 단련 충족 20회 체크
                 branch = (gameState.trainCount >= 20) ? 0 : 1;
                 gameState.stage = "완전체";
                 gameState.branchIndex = branch;
@@ -459,115 +459,119 @@
 
             gameState.lastEvolvedTime = Date.now();
             saveGame(); renderDOM(); updateBookUI();
-            alert(`🎉 [진화 발생]: 고유 형질을 유기적으로 결착하여 [${gameState.stage}] 단계인 [${gameState.name}](으)로 업그레이드되었습니다!`);
+            alert(`🎉 [형질 진화 완료]: 융합 진화를 이루어내어 [${gameState.stage}] 단계 [${gameState.name}](으)로 업그레이드되었습니다.`);
         }
     }
 
-    // --- 5. 타이밍 단련 메커니즘 엔진 (규칙 21, 22) ---
-    function initTrainingUI() {
-        targetZoneWidth = 30 + Math.floor(Math.random() * 15);
-        targetZoneLeft = 30 + Math.floor(Math.random() * 90);
-        perfectLeft = targetZoneLeft + Math.floor(targetZoneWidth / 2) - 6;
-
-        document.getElementById("train-target-zone").style.left = targetZoneLeft + "px";
-        document.getElementById("train-target-zone").style.width = targetZoneWidth + "px";
-        document.getElementById("train-target-perfect").style.left = perfectLeft + "px";
+    // --- 5. 규칙 31: 고강도 연타 단련 메커니즘 엔진 ---
+    function startMashTraining() {
+        if(gameState.isDead || !gameState.isHatched || gameState.isHatching || isMashingActive) return;
+        
+        isMashingActive = true;
+        mashCount = 0;
+        secondsLeft = 5;
+        
+        document.getElementById("mash-btn").disabled = false;
+        document.getElementById("train-control-btn").style.display = "none";
+        document.getElementById("train-result-log").innerText = `🔥 스피드 업! 버튼을 연타하세요!\n제한시간: ${secondsLeft}초 | 연타 카운트: ${mashCount}`;
+        document.getElementById("train-result-log").style.color = "#333";
+        
+        mashTimerInterval = setInterval(() => {
+            secondsLeft--;
+            if(secondsLeft <= 0) {
+                clearInterval(mashTimerInterval);
+                concludeMashTraining();
+            } else {
+                document.getElementById("train-result-log").innerText = `🔥 광속으로 치십시오!!!\n제한시간: ${secondsLeft}초 | 연타 카운트: ${mashCount}`;
+            }
+        }, 1000);
     }
 
-    function toggleTraining() {
-        if(gameState.isDead || !gameState.isHatched || gameState.isHatching) return;
+    function registerMash() {
+        if(!isMashingActive) return;
+        mashCount++;
+        document.getElementById("train-result-log").innerText = `🔥 광속으로 치십시오!!!\n제한시간: ${secondsLeft}초 | 연타 카운트: ${mashCount}`;
+    }
 
-        if(!isTrainingActive) {
-            isTrainingActive = true;
-            cursorPosition = 0;
-            cursorDirection = 8 + Math.floor(Math.random() * 3); // 규칙 21: 난이도 고속 제어
-            document.getElementById("train-result-log").innerText = "리듬 게이지 동기화 중...";
-            document.getElementById("train-result-log").style.color = "#222";
-            initTrainingUI();
-            
-            trainInterval = setInterval(() => {
-                cursorPosition += cursorDirection;
-                if(cursorPosition >= 260 || cursorPosition <= 0) { cursorDirection *= -1; }
-                document.getElementById("train-cursor").style.left = cursorPosition + "px";
-            }, 10);
+    function concludeMashTraining() {
+        isMashingActive = false;
+        document.getElementById("mash-btn").disabled = true;
+        document.getElementById("train-control-btn").style.display = "block";
+        
+        // 규칙 22: 단련 피로도로 인해 30% 확률로 허기 1 하강
+        let hungerDepleted = false;
+        if(Math.random() < 0.3) {
+            gameState.hungry = Math.max(0, gameState.hungry - 1);
+            hungerDepleted = true;
+        }
+
+        let logStr = "";
+        let addStr = 0;
+
+        if(mashCount >= 30) {
+            logStr = "🔥 강공격 (PERFECT)! 한계를 뛰어넘은 압도적 연타 수치!"; addStr = 6;
+        } else if(mashCount >= 20) {
+            logStr = "✨ 중간공격 (GREAT)! 준수한 코어 데이터 동기화 완료."; addStr = 3;
+        } else if(mashCount >= 10) {
+            logStr = "⚡ 약공격 (GOOD). 기초 연타 루프 충족 완료."; addStr = 1;
         } else {
-            clearInterval(trainInterval);
-            isTrainingActive = false;
-            
-            // 규칙 22: 단련 가동 시 오직 30%의 확률로만 배고픔 하강 가중 처리
-            let hungerLost = false;
-            if(Math.random() < 0.3) {
-                gameState.hungry = Math.max(0, gameState.hungry - 1);
-                hungerLost = true;
-            }
-
-            let logStr = "MISS";
-            let addStr = 0;
-            
-            if(cursorPosition >= perfectLeft && cursorPosition <= (perfectLeft + 12)) {
-                logStr = "🔥 PERFECT! 초인적인 강공격 충전 보너스!"; addStr = 6;
-            } else if(cursorPosition >= targetZoneLeft && cursorPosition <= (targetZoneLeft + targetZoneWidth)) {
-                logStr = "✨ GREAT! 균형 잡힌 중간 공격 제어 단련 성공!"; addStr = 3;
-            } else if(Math.abs(cursorPosition - targetZoneLeft) < 25) {
-                logStr = "⚡ GOOD. 미약한 약공격 에너지 충전 연계."; addStr = 1;
-            } else {
-                logStr = "💀 MISS 완벽 실패! 근육 위축 증세 도입 (패널티 발생)";
-            }
-            
-            if(addStr > 0) {
-                gameState.str += addStr;
-                gameState.trainCount++;
-                document.getElementById("train-result-log").style.color = "#1b5e20";
-            } else {
-                // 규칙 21: 실패 시 차기 듀얼 공격력 경감 패널티 플래그 인젝션
-                gameState.hasTrainingDebuff = true;
-                document.getElementById("train-result-log").style.color = "#b71c1c";
-            }
-            
-            let statusSuffix = hungerLost ? " (🥩에너지 급감)" : " (포만감 방어 성공)";
-            document.getElementById("train-result-log").innerText = `${logStr}\n[공격 성능 가변 수치: +${addStr}]${statusSuffix}`;
-            saveGame(); renderDOM();
+            logStr = "💀 MISS 실패! 기동 연타 부족으로 인한 위축 디버프 도입.";
         }
+
+        if(addStr > 0) {
+            gameState.str += addStr;
+            gameState.trainCount++;
+            // 규칙 30 버그 해결: 단련 성공 시 위축 플래그 정상 소거 처리
+            gameState.hasTrainingDebuff = false;
+            document.getElementById("train-result-log").style.color = "#1b5e20";
+        } else {
+            gameState.hasTrainingDebuff = true;
+            document.getElementById("train-result-log").style.color = "#b71c1c";
+        }
+
+        let statusTextSuffix = hungerDepleted ? " (🥩 칼로리 하강)" : " (포만 에너지 디펜스)";
+        document.getElementById("train-result-log").innerText = `${logStr}\n[결과: ${mashCount}회 마크 / 스트렝스 +${addStr}]${statusTextSuffix}`;
+        saveGame(); renderDOM();
     }
 
-    // --- 6. 다마고치 펫 상호작용 및 생명 순환 케어 컨트롤러 ---
+    // --- 6. 케어 및 가상 상호작용 라인 ---
     function touchMonster() {
         if(gameState.isDead || gameState.isHatching) return;
-        const msgList = ["🎵 도트 코어 입자가 활기차게 점멸합니다.", "⚡ 듀얼 네트워크 주파수 대기 중.", "🥩 에너지가 충분한지 항상 파악하십시오."];
-        document.getElementById("status-line").innerText = msgList[Math.floor(Math.random() * msgList.length)];
+        const expressions = ["🎵 고밀도 도트 픽셀이 발랄하게 공명합니다.", "⚡ 전선 투입 연산 기동 대기 중.", "🥩 포만 상태를 체크해 주십시오."];
+        document.getElementById("status-line").innerText = expressions[Math.floor(Math.random() * expressions.length)];
     }
 
     function feedMonster() {
         let currentMax = getMaxHunger(gameState.stage);
         if(gameState.isDead || gameState.hungry >= currentMax) return;
         gameState.hungry = Math.min(currentMax, gameState.hungry + 1);
-        document.getElementById("status-line").innerText = "🍖 압축 단백질 사료를 투여했습니다.";
+        document.getElementById("status-line").innerText = "🍖 특제 에너지 사료 큐브를 소화시켰습니다.";
         saveGame(); renderDOM();
     }
 
     function cleanPoop() {
         if(gameState.poopCount === 0) return;
         gameState.poopCount = 0;
-        document.getElementById("status-line").innerText = "🧹 내부 가상 공간 청소를 완료했습니다.";
+        document.getElementById("status-line").innerText = "🧹 LCD 화면 내부의 노이즈 배설물을 소거했습니다.";
         saveGame(); renderDOM();
     }
 
     function healMonster() {
         if(!gameState.isInjured) return;
         gameState.isInjured = false;
-        document.getElementById("status-line").innerText = "🩹 유전 정보 정렬 치료 완료. 디버프가 증발했습니다.";
+        document.getElementById("status-line").innerText = "🩹 재생 패치를 인젝션하여 크랙을 전면 수리했습니다.";
         saveGame(); renderDOM();
     }
 
-    // --- 7. 패스워드 대전 인터페이스 허브 ---
+    // --- 7. 대전 암호화 허브 엔진 ---
     function generateBattleCode() {
-        if(gameState.isDead || gameState.stage === "유년기") return alert("배틀 주파수는 성장기 단계부터 연결 가능합니다.");
+        if(gameState.isDead || gameState.stage === "유년기") return alert("전투 링크 프로토콜은 성장기 단계부터 연결 가능합니다.");
         let activeStr = gameState.str;
         if(gameState.hasTrainingDebuff) activeStr = Math.floor(activeStr * 0.7);
 
         const packageData = `${gameState.name}|${activeStr}|${gameState.maxHp}|${gameState.spd}|${gameState.type}`;
         navigator.clipboard.writeText(btoa(encodeURIComponent(packageData)));
-        alert("📋 암호 가상 패킷 코드가 복사되었습니다. 상대 유저 대전 창에 주입시키십시오.");
+        alert("📋 내 배틀 프로토콜 패킷 주소가 클립보드에 바인딩되었습니다.");
     }
 
     function startBattle() {
@@ -580,20 +584,20 @@
             const [enemyName, enemyStr, enemyMaxHp, enemySpd, enemyType] = parsePack;
 
             let myHp = gameState.maxHp;
-            if(gameState.isInjured) { myHp = Math.floor(myHp * 0.8); } // 규칙 10: 부상 시 체력 20% 다운 페널티
+            if(gameState.isInjured) { myHp = Math.floor(myHp * 0.8); } // 규칙 10: 부상 시 패널티 반영
             let tEnemyHp = parseInt(enemyMaxHp);
 
             let realMyStr = gameState.str;
-            if(gameState.hasTrainingDebuff) realMyStr = Math.floor(realMyStr * 0.7); // 규칙 21 반영
+            if(gameState.hasTrainingDebuff) realMyStr = Math.floor(realMyStr * 0.7);
 
             let logBox = document.getElementById("battle-log");
-            logBox.innerHTML = "📡 상호 듀얼 암호화 주파수 싱크로 완료... 듀얼 개시!<br>";
+            logBox.innerHTML = "📡 상호 듀얼 데이터 연동 성공... 배틀 개시!<br>";
 
             let finalMod = 1.0;
             if((gameState.type === "백신" && enemyType === "바이러스") ||
                (gameState.type === "바이러스" && enemyType === "데이터") ||
                (gameState.type === "데이터" && enemyType === "백신")) {
-                finalMod = 1.35; logBox.innerHTML += "⭐ [상성 분석] 메인 타격 시너지 증폭 가동!<br>";
+                finalMod = 1.35; logBox.innerHTML += "⭐ [상성 분석] 타격 데이터 인터럽트 가중치 증폭!<br>";
             } else if(gameState.type !== enemyType) { finalMod = 0.75; }
 
             let turnToken = (gameState.spd >= parseInt(enemySpd)) ? "ME" : "ENEMY";
@@ -604,41 +608,40 @@
                 else { myHp -= Math.floor(parseInt(enemyStr)); turnToken = "ME"; }
             }
 
-            gameState.hasTrainingDebuff = false; // 전투 치른 후 디버프 영구 해제
+            // 규칙 30 버그 해결: 배틀을 정상적으로 소화하고 나면 위축 디버프를 영구 해제시킵니다.
+            gameState.hasTrainingDebuff = false;
 
             if(myHp > tEnemyHp) {
-                logBox.innerHTML += `🏆 승리 프로세스 도달! Enemy [${enemyName}] 시스템 붕괴 다운 완료.`;
+                logBox.innerHTML += `🏆 대승리! 적 개체 [${enemyName}] 세그먼트를 붕괴시켰습니다.`;
             } else {
-                logBox.innerHTML += `💀 대전 패배... [${enemyName}]의 출력에 밀렸습니다.`;
-                
+                logBox.innerHTML += `💀 완패... 상대 출력에 밀려 코어가 손상되었습니다.`;
                 if(gameState.isInjured) {
                     gameState.injuredDefeatCount++;
                     if(gameState.stage === "성장기" && gameState.injuredDefeatCount >= 3) {
-                        triggerDeath("성장기 부상 방치 조건 한계 도달로 사망"); return;
+                        triggerDeath("성장기 부상 방치 조건 충족으로 인한 소멸"); return;
                     } else if(gameState.stage === "완전체" && gameState.injuredDefeatCount >= 5) {
-                        triggerDeath("완전체 위험 구역 도달 연산 불능 상태 사망"); return;
+                        triggerDeath("완전체 회복 불능 임계 한계 도달로 소멸"); return;
                     }
                 }
-
                 if(!gameState.isInjured && Math.random() < 0.6) {
                     gameState.isInjured = true;
-                    logBox.innerHTML += `<br>⚠️ 경고: 외벽 디코딩 부상(크랙)이 발생했습니다.`;
+                    logBox.innerHTML += `<br>⚠️ 경고: 장갑 손상으로 인한 부상(크랙) 상태 융합.`;
                 }
             }
             saveGame(); renderDOM();
-        } catch(e) { alert("손상되었거나 유효하지 않은 배틀 패킷 프로토콜입니다."); }
+        } catch(e) { alert("패킷 구조가 손상되어 언팩할 수 없는 암호입니다."); }
     }
 
     function triggerDeath(reason) {
         gameState.isDead = true; gameState.isHatched = false;
-        gameState.stage = "사망"; gameState.name = "데이터 툼"; gameState.code = "VOID";
+        gameState.stage = "사망"; gameState.name = "데이터 무덤"; gameState.code = "VOID";
         gameState.isInjured = false; gameState.poopCount = 0; gameState.hasTrainingDebuff = false;
         saveGame(); renderDOM();
-        alert(`💀 [SYSTEM FATAL CORRUPTION]: 크리처 연산이 중지되었습니다.\n원인 코드: ${reason}`);
+        alert(`💀 [CRITICAL MEMORY FAULT]: 크리처의 연산 기능이 완전 파괴되었습니다.\n사유: ${reason}`);
     }
 
     function forceResetGame() {
-        if(confirm("기억 장치를 전부 포맷하고 차기 오리지널 유전 코어를 할당받으시겠습니까?")) {
+        if(confirm("모든 세이브 아카이브를 소거하고 초기 0번 유전자로 리부트하시겠습니까?")) {
             gameState.hasEgg = true; gameState.isHatched = false; gameState.isDead = false; gameState.isHatching = false;
             gameState.stage = "알"; gameState.name = "디지타마"; gameState.code = "EGG";
             gameState.hungry = 4; gameState.poopCount = 0; gameState.isInjured = false;
@@ -648,7 +651,7 @@
         }
     }
 
-    // --- 8. 도감 갱신 엔진 ---
+    // --- 8. 도감 인프라 드로잉 ---
     function updateBookUI() {
         const targetGrid = document.getElementById("book-grid-area");
         targetGrid.innerHTML = "";
@@ -677,7 +680,7 @@
         }
     }
 
-    // --- 9. 대시보드 탭 스위칭 밸브 (인터페이스 꼬임 차단용) ---
+    // --- 9. 내비게이션 탭 스위칭 밸브 ---
     function switchTab(idx) {
         currentTabIdx = idx;
         for(let i=0; i<4; i++) {
@@ -688,58 +691,66 @@
         document.getElementById(`content-${idx}`).classList.add("active-content");
     }
 
-    // --- 10. 물리 버튼 제어 허브 ---
+    // --- 10. 기기 전면 물리 버튼 프론트 허브 ---
     function pressButton(key) {
-        if(key === 'B' && currentTabIdx === 1 && isTrainingActive) { toggleTraining(); return; }
+        if(key === 'B' && currentTabIdx === 1 && isMashingActive) { registerMash(); return; }
 
         if(key === 'A') {
             let nextTab = (currentTabIdx + 1) % 4;
             switchTab(nextTab);
-            document.getElementById("status-line").innerText = `모드 동기화: TAB ${nextTab}`;
+            document.getElementById("status-line").innerText = `모드 싱크: PANEL ${nextTab + 1}`;
         } else if(key === 'B') {
             if(gameState.stage === "알") hatchEgg();
             else touchMonster();
         } else if(key === 'C') {
-            if(isTrainingActive) { clearInterval(trainInterval); isTrainingActive = false; }
+            if(isMashingActive) { clearInterval(mashTimerInterval); isMashingActive = false; document.getElementById("mash-btn").disabled = true; document.getElementById("train-control-btn").style.display = "block"; }
             switchTab(0);
-            document.getElementById("status-line").innerText = "다마고치 메인 주파수";
+            document.getElementById("status-line").innerText = "다마고치 메인 디스플레이";
         }
     }
 
-    // --- 11. CSS 박스 섀도우 합성 엔진 (규칙 23, 6 유기적 매커니즘 보존) ---
+    // --- 11. 몬스터 픽셀 벡터 변환 엔진 (규칙 23 대응 초대형 보정판) ---
     function generateDynamicShadows(id, stage, branch) {
-        let hashSeed = (id * 13 + stage.length * 3 + branch * 23) % 45;
+        let u = stage === "유년기" ? 9 : stage === "성장기" ? 14 : 20; 
         let baseHue = (id * 6) % 360;
         let colorMain = `hsl(${baseHue}, 80%, 45%)`;
-        let colorAccent = `hsl(${(baseHue + 130) % 360}, 85%, 40%)`;
+        let colorAccent = `hsl(${(baseHue + 140) % 360}, 85%, 40%)`;
         let whiteEye = "#ffffff";
-        
         let matrix = [];
-        // 규칙 6: 진화 전반에 걸친 안구 및 중심점 비례 연관성 승계
-        matrix.push(`0px 0px ${colorMain}`, `1px 0px ${colorMain}`, `-1px 0px ${colorMain}`, `0px 1px ${colorMain}`, `0px -1px ${colorMain}`);
-        matrix.push(`1px -1px ${whiteEye}`, `-1px -1px ${whiteEye}`); 
+        
+        const drawPixel = (x, y, color) => matrix.push(`${x*u}px ${y*u}px ${color}`);
+        
+        // 유기적 연결을 형성하기 위한 고유 심장부 안구 셀 배치
+        drawPixel(0, 0, colorMain);
+        drawPixel(1, 0, colorMain);
+        drawPixel(-1, 0, colorMain);
+        drawPixel(0, 1, colorMain);
+        drawPixel(0, -1, colorMain);
+        drawPixel(1, -1, whiteEye);
+        drawPixel(-1, -1, whiteEye);
         
         if(stage === "유년기") {
-            if(hashSeed % 2 === 0) { matrix.push(`1px 1px ${colorAccent}`, `-1px 1px ${colorAccent}`); }
-            else { matrix.push(`2px 0px ${colorMain}`, `-2px 0px ${colorAccent}`); }
+            drawPixel(1, 1, colorAccent);
+            drawPixel(-1, 1, colorAccent);
+            drawPixel(2, 0, colorMain);
+            drawPixel(-2, 0, colorAccent);
         } 
         else if(stage === "성장기") {
-            matrix.push(`2px 0px ${colorMain}`, `-2px 0px ${colorMain}`, `0px 2px ${colorMain}`, `0px -2px ${colorMain}`);
-            if(branch === 0) { matrix.push(`2px -2px ${colorAccent}`, `-2px -2px ${colorAccent}`); } 
-            else { matrix.push(`3px 1px ${colorAccent}`, `-3px 1px ${colorAccent}`); }
+            drawPixel(2, 0, colorMain); drawPixel(-2, 0, colorMain); drawPixel(0, 2, colorMain); drawPixel(0, -2, colorMain);
+            if(branch === 0) { drawPixel(2, -2, colorAccent); drawPixel(-2, -2, colorAccent); }
+            else { drawPixel(2, 2, colorAccent); drawPixel(-2, 2, colorAccent); }
         } 
         else if(stage === "완전체") {
-            matrix.push(`2px 0px ${colorMain}`, `-2px 0px ${colorMain}`, `0px 2px ${colorMain}`, `0px -2px ${colorMain}`);
-            matrix.push(`2px 2px ${colorAccent}`, `-2px 2px ${colorAccent}`, `2px -2px ${colorAccent}`, `-2px -2px ${colorAccent}`);
-            matrix.push(`3px 0px ${colorMain}`, `-3px 0px ${colorMain}`, `0px 3px ${colorMain}`, `0px -3px ${colorMain}`);
-            if(branch === 0) { matrix.push(`4px -1px ${colorMain}`, `-4px -1px ${colorMain}`, `0px -4px ${colorAccent}`); } 
-            else { matrix.push(`-3px 3px ${colorAccent}`, `3px 3px ${colorAccent}`, `0px 4px #000`); }
+            drawPixel(2, 0, colorMain); drawPixel(-2, 0, colorMain); drawPixel(0, 2, colorMain); drawPixel(0, -2, colorMain);
+            drawPixel(2, 2, colorAccent); drawPixel(-2, 2, colorAccent); drawPixel(2, -2, colorAccent); drawPixel(-2, -2, colorAccent);
+            drawPixel(3, 0, colorMain); drawPixel(-3, 0, colorMain); drawPixel(0, 3, colorMain); drawPixel(0, -3, colorMain);
+            if(branch === 0) { drawPixel(3, -1, colorMain); drawPixel(-3, -1, colorMain); }
+            else { drawPixel(-3, 3, colorAccent); drawPixel(3, 3, colorAccent); }
         }
-        
         return matrix.join(", ");
     }
 
-    // --- 12. 전체 화면 데이터 드로잉 동기화 엔진 ---
+    // --- 12. 전체 레이아웃 바인딩 드로잉 동기화 ---
     function renderDOM() {
         document.getElementById("display-stage").innerText = gameState.stage;
         document.getElementById("display-type").innerText = gameState.type;
@@ -757,7 +768,7 @@
         if(gameState.isDead) {
             const grave = document.createElement("div"); grave.className = "dead-sprite"; grave.innerText = "💀";
             viewArea.appendChild(grave);
-            document.getElementById("status-line").innerText = "코어 연산 복구 불능 다운.";
+            document.getElementById("status-line").innerText = "크리처 소멸 상태.";
             document.getElementById("care-control-matrix").style.display = "none";
             document.getElementById("reset-button").style.display = "block";
             document.getElementById("injury-count-row").style.display = "none";
@@ -772,11 +783,8 @@
             const currentMinute = new Date().getMinutes();
             const egg = document.createElement("div"); 
             egg.className = "egg-sprite" + (gameState.isHatching ? " egg-hatching" : "");
-            
-            // 규칙 28: 현재 시간을 시드로 받아 알 고유 렌더 색상 동적 융합
             egg.style.background = getEggGradient(gameState.isHatching ? gameState.minuteId : currentMinute);
             egg.onclick = hatchEgg;
-            
             viewArea.appendChild(egg);
             document.getElementById("injury-count-row").style.display = "none";
             document.getElementById("debuff-row").style.display = "none";
@@ -790,13 +798,12 @@
 
             if(gameState.isInjured && gameState.stage !== "유년기") {
                 document.getElementById("injury-count-row").style.display = "flex";
-                document.getElementById("stat-injury-count").innerText = `${gameState.injuredDefeatCount} 회 / ${gameState.stage==='성장기'?'3회시 사망':'5회시 사망'}`;
+                document.getElementById("stat-injury-count").innerText = `${gameState.injuredDefeatCount} 회 / ${gameState.stage==='성장기'?'3회 누적시 소멸':'5회 누적시 소멸'}`;
             } else { document.getElementById("injury-count-row").style.display = "none"; }
 
             document.getElementById("debuff-row").style.display = gameState.hasTrainingDebuff ? "flex" : "none";
         }
 
-        // 대시보드 내부 전도 파라미터 동기화
         let curMax = getMaxHunger(gameState.stage);
         document.getElementById("stat-name").innerText = gameState.name;
         document.getElementById("stat-code").innerText = gameState.code;
