@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>디지털 몬스터 다마고치 V13 (파이널 에디션)</title>
+    <title>디지털 몬스터 다마고치 V13.5 (파이널 완결판)</title>
     <style>
         body {
             background-color: #121315;
@@ -163,14 +163,14 @@
 
         .dead-sprite { font-size: 72px; animation: ghost-drift 2.2s infinite ease-in-out; cursor: pointer; }
 
-        /* --- 규칙 48 & 49: 실시간 2D 배틀 아레나 그래픽 프레임 워크 --- */
+        /* --- 규칙 48, 49, 50: 실시간 2D 배틀 아레나 그래픽 섀시 (가시성 고도화) --- */
         .battle-arena-view {
             width: 100%;
             height: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0 10px;
+            padding: 0 5px;
             box-sizing: border-box;
             position: relative;
         }
@@ -179,42 +179,55 @@
             top: 5px;
             font-size: 9px;
             font-weight: bold;
-            background: rgba(0,0,0,0.1);
+            background: rgba(0,0,0,0.15);
             padding: 1px 4px;
             border-radius: 3px;
         }
         #p1-hp-hub { left: 5px; }
         #p2-hp-hub { right: 5px; text-align: right; }
+        
         .battle-fighter {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 90px;
-            height: 120px;
+            width: 100px;
+            height: 140px;
+            position: relative;
+        }
+        .fighter-sprite-wrapper {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .fighter-label {
             font-size: 9px;
             font-weight: bold;
-            margin-top: 5px;
-            background: rgba(255,255,255,0.6);
-            padding: 1px 3px;
+            margin-top: 8px;
+            background: rgba(255,255,255,0.7);
+            padding: 1px 4px;
             border-radius: 3px;
-            max-width: 85px;
+            max-width: 90px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            border: 1px solid #555;
         }
+        
+        /* 규칙 50: 투사체 속도 최적화 감속 (0.4s -> 0.9s로 부드러운 궤적 이동) */
         .battle-projectile {
             position: absolute;
-            font-size: 20px;
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-size: 24px;
+            transition: all 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             z-index: 50;
             pointer-events: none;
+            filter: drop-shadow(1px 2px 1px rgba(0,0,0,0.4));
         }
         .special-move-style {
-            font-size: 42px !important;
-            filter: drop-shadow(0 0 6px #d84315);
+            font-size: 46px !important;
+            filter: drop-shadow(0 0 8px #d84315) !important;
             animation: super-pulse 0.2s infinite alternate;
         }
         .combat-text-fx {
@@ -226,11 +239,11 @@
             border: 1.5px solid #000;
             padding: 1px 4px;
             border-radius: 4px;
-            animation: fx-pop-up 0.5s forwards ease-out;
+            animation: fx-pop-up 0.6s forwards ease-out;
             z-index: 60;
         }
 
-        /* 물리 애니메이션 키프레임 테이브 정의 */
+        /* 물리 애니메이션 키프레임 테이블 정의 */
         @keyframes egg-idle-wobble { 0% { transform: rotate(-6deg); } 100% { transform: rotate(6deg); } }
         @keyframes egg-furious-shake { 0% { transform: translateX(-5px) rotate(-5deg); } 100% { transform: translateX(5px) rotate(5deg); } }
         @keyframes dot-breathe { 0% { transform: scale(1); } 100% { transform: scale(1.2, 0.82); } }
@@ -244,7 +257,7 @@
         @keyframes cleaner-sweep { 0% { left: -110%; } 100% { left: 100%; } }
         @keyframes fly-buzz { 0% { transform: translate(0,0); } 100% { transform: translate(4px, -5px); } }
         @keyframes fx-pop-up { 0% { transform: scale(0.5) translateY(0); opacity: 1; } 100% { transform: scale(1.2) translateY(-20px); opacity: 0; } }
-        @keyframes super-pulse { 0% { transform: scale(1); } 100% { transform: scale(1.2); } }
+        @keyframes super-pulse { 0% { transform: scale(1); } 100% { transform: scale(1.15); } }
 
         .poop-area { position: absolute; bottom: 8px; right: 12px; display: flex; gap: 4px; z-index: 4; }
         .poop { width: 16px; height: 16px; background-color: #5d4037; border-radius: 50% 50% 20% 20%; border: 2px solid #111; }
@@ -320,7 +333,6 @@
 
 <div class="main-app-container">
     
-    <!-- 오리지널 물리 스크린 인클로저 -->
     <div class="tamagotchi-hardware">
         <div class="lcd-screen" id="lcd-display">
             <div class="screen-header">
@@ -330,14 +342,12 @@
             </div>
             
             <div class="view-area" id="view-area">
-                <!-- 동적 마운트 뷰포트 -->
-            </div>
+                </div>
             
             <div class="status-text" id="status-line">알을 터치하여 동기화 부화 시퀀스를 개시하십시오.</div>
         </div>
     </div>
 
-    <!-- 기기 하단 인터페이스 레이아웃 -->
     <div class="dashboard-panel">
         <div class="dashboard-tabs">
             <button class="tab-button active-tab" id="tab-0" onclick="switchTab(0)">📊 개체관리</button>
@@ -346,7 +356,6 @@
             <button class="tab-button" id="tab-3" onclick="switchTab(3)">📖 통합도감</button>
         </div>
 
-        <!-- Tab 0: 개체 분석 매트릭스 -->
         <div class="panel-content active-content" id="content-0">
             <div class="flex-space"><span>개체 식별명:</span> <span id="stat-name" style="color:#1565c0;">-</span></div>
             <div class="flex-space"><span>유전자 코드:</span> <span id="stat-code" style="color:#2e7d32;">-</span></div>
@@ -371,7 +380,6 @@
                 <button class="action-btn" onclick="healMonster()" style="background:#ffebee; grid-column: span 2;">🩹 부상 크랙 셀 복구 치유</button>
             </div>
 
-            <!-- 복구 유닛 -->
             <div class="revive-matrix" id="revive-interface-box" style="display:none;">
                 <strong style="font-size:12px; color:#e65100;">💀 코어 재부팅: 부화할 알 유전자 선택</strong>
                 <div class="revive-btn-group">
@@ -381,7 +389,6 @@
             </div>
         </div>
 
-        <!-- Tab 1: 10초 타임어택 고속 연타 시설 -->
         <div class="panel-content" id="content-1">
             <h4 style="margin: 0 0 6px 0;">🏋️ 하이퍼 임팩트 연타 트레이닝</h4>
             <p style="margin:0 0 8px 0; font-size:11px; color:#555;">제한 시간 **10초** 내에 **10회** 타격 달성 시 즉시 완수!<br><span style="color:#c62828; font-weight:bold;">※ 4회 미만 낙제 시 데미지 감소 패널티 부여 (30% 확률로 허기 1 소모)</span></p>
@@ -393,7 +400,6 @@
             <div id="train-result-log" style="margin-top:10px; font-weight:bold; font-size:12px; text-align:center; min-height:45px; white-space: pre-line; color:#333;"></div>
         </div>
 
-        <!-- Tab 2: 암호 대전 네트워크 -->
         <div class="panel-content" id="content-2">
             <h4 style="margin: 0 0 4px 0;">⚔️ 패스워드 스트림 배틀 필드</h4>
             <p style="margin:0 0 8px 0; font-size:11px; color:#666;">성장기 이상 가동 가능. 실시간 2D 액정 배틀 시뮬레이션 지원.</p>
@@ -405,7 +411,6 @@
             <div id="battle-log" style="margin-top:8px; border:2px solid #111; background:#fafafa; padding:6px; font-size:11px; height:110px; overflow-y:auto; border-radius:4px;"></div>
         </div>
 
-        <!-- Tab 3: 통합 데이터 도감 -->
         <div class="panel-content" id="content-3">
             <h4 style="margin: 0 0 8px 0;">📖 가상 디지털 아카이브 (60분 스케일 고정)</h4>
             <div class="book-grid" id="book-grid-area"></div>
@@ -462,7 +467,7 @@
 
     window.onload = function() {
         loadGame();
-        // 규칙 46: 최초 구동(세이브가 아예 없는 클린 상태) 시, 고정값이 아닌 현재의 실시간 분(시간)을 즉시 적용
+        // 규칙 46: 최초 구동 시, 고정값이 아닌 현재의 실시간 분(시간)을 즉시 적용
         if (!localStorage.getItem("tamagotchi_v12_core")) {
             gameState.minuteId = new Date().getMinutes();
             gameState.hasEgg = true;
@@ -536,7 +541,6 @@
         renderDOM();
     }
 
-    // --- 규칙 36 & 47: 개체 클릭 시 전용 상호작용 랜덤 대사 시스템 ---
     function handleMonsterClick() {
         if (gameState.isDead || gameState.isEvolving || gameState.isEating || gameState.isCleaning || activeBattle) return;
         
@@ -545,7 +549,6 @@
             return;
         }
         
-        // 규칙 45 관련 멘트 조건 분기
         if (gameState.poopCount >= 3) {
             document.getElementById("status-line").innerText = `💬 ${gameState.name}: "우우욱... 주변이 너무 더러워요! 몸에 오염 코드가 전이 중입니다. 청소해주세요!"`;
             return;
@@ -804,19 +807,16 @@
         saveGame(); renderDOM();
     }
 
-    // --- 암호 배틀 코드 생성 장치 ---
     function generateBattleCode() {
         if(gameState.isDead || gameState.stage === "유년기") return alert("배틀 주파수는 성장기 단계 이상부터 송출 가능합니다.");
         let activeStr = gameState.str;
         if(gameState.hasTrainingDebuff) activeStr = Math.floor(activeStr * 0.7);
 
-        // 규칙 48 구현 최적화: 상대 화면에도 내 도트 섀도우가 뜨도록 형상 인자 유입 확장
         const packageData = `${gameState.name}|${activeStr}|${gameState.maxHp}|${gameState.spd}|${gameState.type}|${gameState.minuteId}|${gameState.stage}|${gameState.branchIndex}`;
         navigator.clipboard.writeText(btoa(encodeURIComponent(packageData)));
         alert("📋 배틀 네트워크 패킷 코딩 복사가 완료되었습니다.");
     }
 
-    // --- 규칙 48 & 49: 고도화된 실시간 2D 비주얼 턴제 배틀 시스템 ---
     function startBattle() {
         if(gameState.isDead || gameState.stage === "유년기" || gameState.isEvolving || activeBattle) return;
         const inputCode = document.getElementById("opponent-code").value.trim();
@@ -824,16 +824,14 @@
 
         try {
             const parsePack = decodeURIComponent(atob(inputCode)).split("|");
-            // 상대 정보 언팩킹
             const [enemyName, enemyStr, enemyMaxHp, enemySpd, enemyType, enemyMinId, enemyStage, enemyBranch] = parsePack;
             
             let myHp = gameState.maxHp;
-            if(gameState.isInjured) { myHp = Math.floor(myHp * 0.8); } // 치료 부재 페널티 가동
+            if(gameState.isInjured) { myHp = Math.floor(myHp * 0.8); } 
             
             let realMyStr = gameState.str;
             if(gameState.hasTrainingDebuff) realMyStr = Math.floor(realMyStr * 0.7);
 
-            // 실시간 배틀 제어 오브젝트 빌드
             activeBattle = {
                 p1: { name: gameState.name, str: realMyStr, hp: myHp, maxHp: gameState.maxHp, type: gameState.type, minId: gameState.minuteId, stage: gameState.stage, branch: gameState.branchIndex, attackCount: 0 },
                 p2: { name: enemyName, str: parseInt(enemyStr), hp: parseInt(enemyMaxHp), maxHp: parseInt(enemyMaxHp), type: enemyType, minId: parseInt(enemyMinId || 0), stage: enemyStage || "성장기", branch: parseInt(enemyBranch || 0), attackCount: 0 },
@@ -844,12 +842,13 @@
             document.getElementById("battle-start-trigger").disabled = true;
             document.getElementById("battle-log").innerHTML = "📡 실시간 격리 아레나 인입 동기화 세션 시작...<br>";
             
-            renderDOM(); // 배틀 화면 뷰로 전격 대전환
+            renderDOM(); 
             setTimeout(executeBattleTurnEngine, 1000);
 
         } catch(e) { alert("상대방 패킷 코드가 변형되어 파싱 메커니즘이 거부되었습니다."); }
     }
 
+    // --- 규칙 48, 49, 50 가시성 감속 배틀 엔진 코어 ---
     function executeBattleTurnEngine() {
         if (!activeBattle) return;
 
@@ -857,24 +856,20 @@
         let defender = activeBattle.turn === "p1" ? activeBattle.p2 : activeBattle.p1;
         let logBox = document.getElementById("battle-log");
 
-        // 대전 종료 조건 판정
         if (activeBattle.p1.hp <= 0 || activeBattle.p2.hp <= 0 || activeBattle.stepCount >= 30) {
             concludeVisualBattle();
             return;
         }
 
         activeBattle.stepCount++;
-        attacker.attackCount++; // 순수 누적 공격 카운트 가산
+        attacker.attackCount++; 
 
-        // 규칙 49: 공격 2번 주고 받은 후 3번째 턴 도달 시 초강력 필살기 기동 플래그 판정
         let isSpecialMove = (attacker.attackCount > 0 && attacker.attackCount % 3 === 0);
         
-        // 규칙 48 타입별 투사체 정의
-        let projectileIcon = "💊"; // 백신 기본값
+        let projectileIcon = "💊"; 
         if (attacker.type === "바이러스") projectileIcon = "🦠";
         if (attacker.type === "데이터") projectileIcon = "💾";
 
-        // 상성 계수 추출
         let mod = 1.0;
         if ((attacker.type === "백신" && defender.type === "바이러스") ||
             (attacker.type === "바이러스" && defender.type === "데이터") ||
@@ -884,15 +879,13 @@
             mod = 0.75;
         }
 
-        // 데미지 수치 책정
         let baseDmg = Math.floor(attacker.str * mod);
         if (isSpecialMove) {
-            baseDmg = Math.floor(baseDmg * 2.6); // 필살기는 2.6배율 초강력 보정
+            baseDmg = Math.floor(baseDmg * 2.6); 
         }
         if (baseDmg < 1) baseDmg = 1;
 
-        // 규칙 48: 기동 속도 비율 비례 확률형 회피(EVADE) 연산
-        let isEvaded = Math.random() < 0.18; // 18% 고정 기저 확률 기반 회피 유도
+        let isEvaded = Math.random() < 0.18; 
 
         // 비주얼 투사체 비행 모션 프레임 연출
         const arena = document.getElementById("battle-arena-element");
@@ -900,61 +893,77 @@
         proj.className = "battle-projectile" + (isSpecialMove ? " special-move-style" : "");
         proj.innerText = projectileIcon;
         
-        // 시발점 및 종착점 위치 셋팅
+        // 규칙 50: 이미지 중심 위치에서 발사되도록 시작 Y축 위치 최적화 세팅
         if (activeBattle.turn === "p1") {
-            proj.style.left = "40px"; proj.style.top = "90px";
+            proj.style.left = "45px"; proj.style.top = "70px";
         } else {
-            proj.style.right = "40px"; proj.style.top = "90px";
+            proj.style.right = "45px"; proj.style.top = "70px";
         }
         arena.appendChild(proj);
 
-        // 투사체 애니메이션 물리 시간 가중
+        // 규칙 50 투사체 속도 최적화 감속: CSS 전이 유예를 위한 딜레이 타이밍
         setTimeout(() => {
             if (activeBattle.turn === "p1") {
-                proj.style.left = "280px";
+                proj.style.left = "235px";
             } else {
-                proj.style.right = "280px";
+                proj.style.right = "235px";
             }
-        }, 50);
+        }, 60);
 
-        // 적중 지점 프레임 디스플레이 갱신 내부 타이머
+        // 규칙 50: 투사체가 충분히 날아가는 속도(0.9s)에 완벽하게 싱크를 맞춘 950ms 피격 핸들러
         setTimeout(() => {
             proj.remove();
             
             const fx = document.createElement("div");
             fx.className = "combat-text-fx";
             if (activeBattle.turn === "p1") {
-                fx.style.right = "40px"; fx.style.top = "70px";
+                fx.style.right = "40px"; fx.style.top = "55px";
             } else {
-                fx.style.left = "40px"; fx.style.top = "70px";
+                fx.style.left = "40px"; fx.style.top = "55px";
             }
 
             if (isEvaded) {
                 fx.innerText = "EVADE! 💨";
                 fx.style.color = "#1565c0";
-                logBox.innerHTML += `💨 [${attacker.name}]의 ${isSpecialMove?'초필살기':'공격'}을 [${defender.name}]이 무결하게 회피했습니다.<br>`;
+                logBox.innerHTML += `💨 [${attacker.name}]의 ${isSpecialMove?'초필살기':'공격'}을 [${defender.name}]이 회피했습니다.<br>`;
+                
+                // 회피 시 몬스터 몸체 슬라이짝 회전 이펙트 액션 페이즈 연출
+                const defImg = document.getElementById(activeBattle.turn === "p1" ? "p2-battle-sprite" : "p1-battle-sprite");
+                if(defImg) {
+                    defImg.style.transform = defImg.style.transform + " rotate(25deg) translateY(-8px)";
+                    setTimeout(() => {
+                        defImg.style.transform = activeBattle.turn === "p1" ? "scaleX(-1)" : "scale(1)";
+                    }, 300);
+                }
             } else {
                 defender.hp = Math.max(0, defender.hp - baseDmg);
                 fx.innerText = isSpecialMove ? `💥크리티컬 -${baseDmg}` : `💥-${baseDmg}`;
-                logBox.innerHTML += `⚔️ [${attacker.name}]의 ${isSpecialMove?'🔥필살기':'기본공격'} 전개 -> [${defender.name}]에게 ${baseDmg} 피해!<br>`;
+                logBox.innerHTML += `⚔️ [${attacker.name}]의 ${isSpecialMove?'🔥필살기':'기본공격'} -> [${defender.name}]에게 ${baseDmg} 피해!<br>`;
+                
+                // 피격 시 몬스터 흔들림 모션 연출
+                const defImg = document.getElementById(activeBattle.turn === "p1" ? "p2-battle-sprite" : "p1-battle-sprite");
+                if(defImg) {
+                    defImg.style.filter = "invert(0.5)";
+                    setTimeout(() => defImg.style.filter = "none", 150);
+                }
             }
             arena.appendChild(fx);
-            setTimeout(() => fx.remove(), 500);
+            setTimeout(() => fx.remove(), 600);
 
-            // 턴 교체 프로토콜 및 순환 스케줄러 렌더링
             activeBattle.turn = activeBattle.turn === "p1" ? "p2" : "p1";
             logBox.scrollTop = logBox.scrollHeight;
             
             renderDOM();
-            setTimeout(executeBattleTurnEngine, 900);
-        }, 450);
+            // 묵직한 공방 교대를 위한 다음 턴 대기 타이밍 최적화 조정
+            setTimeout(executeBattleTurnEngine, 1000);
+        }, 900);
     }
 
     function concludeVisualBattle() {
         let logBox = document.getElementById("battle-log");
         document.getElementById("battle-start-trigger").disabled = false;
         
-        gameState.hasTrainingDebuff = false; // 전장 생존 시 패널티 해제
+        gameState.hasTrainingDebuff = false; 
 
         if (activeBattle.p1.hp > activeBattle.p2.hp) {
             logBox.innerHTML += `<br>🏆 <b>아레나 최종 승리!</b> 차원 통합을 달성했습니다.`;
@@ -1056,7 +1065,6 @@
         if(idx === 3) updateBookUI(); 
     }
 
-    // --- 절차적 가상 매트릭스 도트 셰도우 생성기 ---
     function generateDynamicShadows(id, stage, branch) {
         let u = stage === "유년기" ? 11 : stage === "성장기" ? 16 : 22; 
         let mainHue = (id * 23 + (branch * 45)) % 360;
@@ -1096,9 +1104,8 @@
         return matrix.join(", ");
     }
 
-    // --- 가상 드라이버 인터페이스 화면 동기화 코어 인터페이스 ---
     function renderDOM() {
-        // 배틀 모드가 기동 중일 시, 메인 LCD 화면 프레임을 2D 배틀 아레나 뷰포트로 전환 처리
+        // --- 규칙 50: 배틀 모드 기동 시 양측의 몬스터 도트 그래픽을 화면에 완전히 노출 보장 ---
         if (activeBattle) {
             document.getElementById("display-stage").innerText = "COMBAT";
             document.getElementById("display-type").innerText = `VS ${activeBattle.p2.type}`;
@@ -1111,7 +1118,6 @@
             arena.className = "battle-arena-view";
             arena.id = "battle-arena-element";
 
-            // 상단 체력 상황 게이지 바 마운트
             const p1Hp = document.createElement("div");
             p1Hp.className = "battle-hp-bar-container"; p1Hp.id = "p1-hp-hub";
             p1Hp.innerText = `MY:${activeBattle.p1.hp}/${activeBattle.p1.maxHp}`;
@@ -1120,21 +1126,30 @@
             p2Hp.className = "battle-hp-bar-container"; p2Hp.id = "p2-hp-hub";
             p2Hp.innerText = `ENEMY:${activeBattle.p2.hp}/${activeBattle.p2.maxHp}`;
 
-            // 플레이어 1(나) 그래픽 프레임
+            // 플레이어 1(나) 도트 프레임 전면 고정 노출
             const f1 = document.createElement("div"); f1.className = "battle-fighter";
-            const m1 = document.createElement("div"); m1.className = "monster-dot-matrix";
+            const w1 = document.createElement("div"); w1.className = "fighter-sprite-wrapper";
+            const m1 = document.createElement("div"); 
+            m1.id = "p1-battle-sprite";
+            m1.className = "monster-dot-matrix";
+            // 배틀 스케일에 최적화된 마운트 변환 크기 조정
             m1.style.transform = "scale(0.55)";
             m1.style.boxShadow = generateDynamicShadows(activeBattle.p1.minId, activeBattle.p1.stage, activeBattle.p1.branch);
+            w1.appendChild(m1);
             const l1 = document.createElement("div"); l1.className = "fighter-label"; l1.innerText = activeBattle.p1.name;
-            f1.appendChild(m1); f1.appendChild(l1);
+            f1.appendChild(w1); f1.appendChild(l1);
 
-            // 플레이어 2(상대방) 그래픽 프레임
+            // 플레이어 2(상대방) 도트 프레임 전면 고정 노출
             const f2 = document.createElement("div"); f2.className = "battle-fighter";
-            const m2 = document.createElement("div"); m2.className = "monster-dot-matrix";
-            m2.style.transform = "scale(0.55) scaleX(-1)"; // 좌우 반전 시각 연출
+            const w2 = document.createElement("div"); w2.className = "fighter-sprite-wrapper";
+            const m2 = document.createElement("div"); 
+            m2.id = "p2-battle-sprite";
+            m2.className = "monster-dot-matrix";
+            m2.style.transform = "scale(0.55) scaleX(-1)"; // 상호 대치 반전 연출
             m2.style.boxShadow = generateDynamicShadows(activeBattle.p2.minId, activeBattle.p2.stage, activeBattle.p2.branch);
+            w2.appendChild(m2);
             const l2 = document.createElement("div"); l2.className = "fighter-label"; l2.innerText = activeBattle.p2.name;
-            f2.appendChild(m2); f2.appendChild(l2);
+            f2.appendChild(w2); f2.appendChild(l2);
 
             arena.appendChild(p1Hp); arena.appendChild(p2Hp);
             arena.appendChild(f1); arena.appendChild(f2);
@@ -1156,7 +1171,6 @@
         if (existingFood) viewArea.appendChild(existingFood);
         if (existingBroom) viewArea.appendChild(existingBroom);
 
-        // 오물 영역 드로잉
         const poopBox = document.createElement("div");
         poopBox.className = "poop-area";
         for(let p = 0; p < gameState.poopCount; p++) {
@@ -1203,7 +1217,6 @@
             document.getElementById("injury-count-row").style.display = "none";
             document.getElementById("debuff-row").style.display = "none";
         } else {
-            // 크리처 출력 컨테이너 구성
             const monContainer = document.createElement("div");
             monContainer.style.position = "relative";
             monContainer.style.display = "inline-block";
@@ -1211,11 +1224,8 @@
             const mon = document.createElement("div");
             mon.className = `monster-dot-matrix pixel-size-${gameState.stage}`;
             
-            // 규칙 45: 똥이 3개 이상 누적되어 있을 시 몬스터 몸체 오염 이펙트 강제 트리거
             if (gameState.poopCount >= 3) {
                 mon.classList.add("dirty-monster");
-                
-                // 주변에 날파리 픽셀 요소 배치 오버레이 연출
                 for(let f=0; f<2; f++) {
                     const fly = document.createElement("div");
                     fly.className = "fly-pixel"; fly.innerText = "🪰";
